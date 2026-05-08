@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>光影瞬间 · 摄影作品集</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <a href="#" class="logo">光影瞬间</a>
+            <nav class="nav">
+                <a href="#gallery">作品</a>
+                <a href="#about">关于</a>
+                <a href="#contact">联系</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <h1>用镜头捕捉世界的温度</h1>
+        <p>风光 · 人像 · 街拍 · 静物</p>
+        <a href="#gallery" class="btn">浏览作品</a>
+    </section>
+
+    <section id="gallery" class="gallery-section">
+        <div class="filter-bar">
+            <button class="filter-btn active" data-filter="all">全部</button>
+            <button class="filter-btn" data-filter="landscape">风光</button>
+            <button class="filter-btn" data-filter="portrait">人像</button>
+            <button class="filter-btn" data-filter="street">街拍</button>
+            <button class="filter-btn" data-filter="still">静物</button>
+        </div>
+        <div class="gallery" id="galleryGrid"></div>
+    </section>
+
+    <section id="about" class="about-section">
+        <div class="about-content">
+            <h2>关于我</h2>
+            <p>热爱摄影多年，走遍山川湖海，用镜头记录下每一个动人的瞬间。擅长风光摄影与人像摄影，追求光影与构图的完美平衡。</p>
+            <p>每一张照片，都是时光的标本。</p>
+        </div>
+    </section>
+
+    <section id="contact" class="contact-section">
+        <h2>联系方式</h2>
+        <div class="contact-links">
+            <a href="mailto:photographer@example.com">Email</a>
+            <span class="divider">·</span>
+            <a href="#">Instagram</a>
+            <span class="divider">·</span>
+            <a href="#">500px</a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>&copy; 2026 光影瞬间. All rights reserved.</p>
+    </footer>
+
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close" id="lightboxClose">&times;</span>
+        <span class="lightbox-prev" id="lightboxPrev">&#10094;</span>
+        <span class="lightbox-next" id="lightboxNext">&#10095;</span>
+        <div class="lightbox-content">
+            <img src="" alt="" id="lightboxImg">
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
