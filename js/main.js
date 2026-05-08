@@ -1,88 +1,45 @@
-// ===== IndexedDB =====
-const DB_NAME = "PhotoGallery";
-const DB_VERSION = 1;
-let db;
+// ===== Config =====
+const ADMIN_PASSWORD = "admin123";
+const STORAGE_KEY = "photo_gallery_data";
 
-function openDB() {
-    return new Promise((resolve, reject) => {
-        const req = indexedDB.open(DB_NAME, DB_VERSION);
-        req.onupgradeneeded = (e) => {
-            const db = e.target.result;
-            if (!db.objectStoreNames.contains("photos")) {
-                db.createObjectStore("photos", { keyPath: "id" });
-            }
-        };
-        req.onsuccess = (e) => {
-            db = e.target.result;
-            resolve(db);
-        };
-        req.onerror = () => reject(req.error);
-    });
-}
-
-function dbPut(photo) {
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction("photos", "readwrite");
-        tx.objectStore("photos").put(photo);
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error);
-    });
-}
-
-function dbDelete(id) {
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction("photos", "readwrite");
-        tx.objectStore("photos").delete(id);
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error);
-    });
-}
-
-function dbClear() {
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction("photos", "readwrite");
-        tx.objectStore("photos").clear();
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error);
-    });
-}
-
-function dbGetAll() {
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction("photos", "readonly");
-        const req = tx.objectStore("photos").getAll();
-        req.onsuccess = () => resolve(req.result || []);
-        req.onerror = () => reject(req.error);
-    });
-}
-
-// ===== Default Photos =====
-const defaultPhotos = [
-    { id: "d1", src: "https://picsum.photos/seed/landscape1/800/600", category: "landscape", title: "晨曦山峦" },
-    { id: "d2", src: "https://picsum.photos/seed/landscape2/800/1000", category: "landscape", title: "静谧湖泊" },
-    { id: "d3", src: "https://picsum.photos/seed/landscape3/800/600", category: "landscape", title: "落日海岸" },
-    { id: "d4", src: "https://picsum.photos/seed/landscape4/800/800", category: "landscape", title: "川西秋色" },
-    { id: "d5", src: "https://picsum.photos/seed/landscape5/800/600", category: "landscape", title: "云海日出" },
-    { id: "d6", src: "https://picsum.photos/seed/portrait1/800/1000", category: "portrait", title: "回眸" },
-    { id: "d7", src: "https://picsum.photos/seed/portrait2/800/600", category: "portrait", title: "午后光影" },
-    { id: "d8", src: "https://picsum.photos/seed/portrait3/800/1000", category: "portrait", title: "微笑" },
-    { id: "d9", src: "https://picsum.photos/seed/street1/800/600", category: "street", title: "雨夜霓虹" },
-    { id: "d10", src: "https://picsum.photos/seed/street2/800/800", category: "street", title: "巷弄光影" },
-    { id: "d11", src: "https://picsum.photos/seed/street3/800/600", category: "street", title: "城市剪影" },
-    { id: "d12", src: "https://picsum.photos/seed/still1/800/800", category: "still", title: "晨露" },
-    { id: "d13", src: "https://picsum.photos/seed/still2/800/600", category: "still", title: "花语" },
-    { id: "d14", src: "https://picsum.photos/seed/still3/800/600", category: "still", title: "器物" },
-    { id: "d15", src: "https://picsum.photos/seed/still4/800/1000", category: "still", title: "光影小品" },
-];
-
-// ===== App State =====
+// ===== State =====
 let photos = [];
 let currentFilter = "all";
 let filteredPhotos = [];
 let lightboxIndex = -1;
 let isAdmin = false;
 let pendingImageData = null;
-const ADMIN_PASSWORD = "admin123";
+let pendingImageName = null;
+
+// ===== Load Photos =====
+// Priority: localStorage (admin edits) > photos.json (deployed data)
+async function loadPhotos() {
+    // Check localStorage first
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+        try {
+            photos = JSON.parse(stored);
+            return;
+        } catch (e) { /* fall through */ }
+    }
+
+    // Load from photos.json
+    try {
+        const res = await fetch("data/photos.json");
+        if (res.ok) {
+            photos = await res.json();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(photos));
+            return;
+        }
+    } catch (e) { /* fall through */ }
+
+    // Empty
+    photos = [];
+}
+
+function persistPhotos() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(photos));
+}
 
 // ===== Gallery =====
 const galleryGrid = document.getElementById("galleryGrid");
@@ -110,6 +67,10 @@ function createGallery(items) {
         img.src = photo.src;
         img.alt = photo.title || "";
         img.loading = "lazy";
+        img.onerror = function () {
+            // Fallback if local image doesn't exist
+            this.src = `https://picsum.photos/seed/${photo.id}/800/600`;
+        };
 
         item.appendChild(img);
         item.addEventListener("click", () => openLightbox(index));
@@ -184,7 +145,6 @@ const adminOverlay = document.getElementById("adminOverlay");
 const adminLogin = document.getElementById("adminLogin");
 const adminDashboard = document.getElementById("adminDashboard");
 const uploadInput = document.getElementById("uploadInput");
-const uploadZone = document.getElementById("uploadZone");
 const uploadPreview = document.getElementById("uploadPreview");
 const uploadTitle = document.getElementById("uploadTitle");
 const uploadCategory = document.getElementById("uploadCategory");
@@ -248,7 +208,7 @@ uploadInput.addEventListener("change", (e) => {
     }
 });
 
-// Drag & drop
+const uploadZone = document.getElementById("uploadZone");
 uploadZone.addEventListener("dragover", (e) => {
     e.preventDefault();
     uploadZone.style.borderColor = "rgba(255,255,255,0.4)";
@@ -269,13 +229,14 @@ function handleFileSelect(file) {
         alert("请选择图片文件");
         return;
     }
+    pendingImageName = file.name.replace(/\.[^.]+$/, "");
     const reader = new FileReader();
     reader.onload = (e) => {
         pendingImageData = e.target.result;
         uploadPreview.innerHTML = `<img src="${pendingImageData}" alt="预览">`;
         btnUpload.disabled = false;
         if (!uploadTitle.value) {
-            uploadTitle.value = file.name.replace(/\.[^.]+$/, "");
+            uploadTitle.value = pendingImageName;
         }
     };
     reader.readAsDataURL(file);
@@ -283,6 +244,7 @@ function handleFileSelect(file) {
 
 function resetUploadForm() {
     pendingImageData = null;
+    pendingImageName = null;
     uploadPreview.innerHTML = "<span>点击或拖拽上传</span>";
     uploadTitle.value = "";
     uploadCategory.value = "landscape";
@@ -290,20 +252,40 @@ function resetUploadForm() {
     uploadInput.value = "";
 }
 
-btnUpload.addEventListener("click", async () => {
+btnUpload.addEventListener("click", () => {
     if (!pendingImageData) return;
+
+    const title = uploadTitle.value.trim() || "未命名";
+    const category = uploadCategory.value;
+    const id = Date.now().toString();
+    const ext = pendingImageData.startsWith("data:image/png") ? "png" : "jpg";
+    const filename = `${category}_${title}_${id}.${ext}`;
+
+    // src = base64 for immediate display; file = target path for export
     const photo = {
-        id: Date.now().toString(),
+        id,
         src: pendingImageData,
-        category: uploadCategory.value,
-        title: uploadTitle.value.trim() || "未命名",
+        file: `images/${filename}`,
+        category,
+        title,
     };
-    await dbPut(photo);
     photos.push(photo);
+    persistPhotos();
+
+    // Download image file — user drops it into images/ folder later
+    downloadFile(pendingImageData, filename);
+
     resetUploadForm();
     renderPhotoList();
     refreshGallery();
 });
+
+function downloadFile(dataUrl, filename) {
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = filename;
+    a.click();
+}
 
 // ===== Photo List Management =====
 function renderPhotoList() {
@@ -316,9 +298,9 @@ function renderPhotoList() {
         const item = document.createElement("div");
         item.className = "photo-list-item";
         item.innerHTML = `
-            <img class="photo-list-thumb" src="${photo.src}" alt="${photo.title}">
+            <img class="photo-list-thumb" src="${photo.src}" alt="${photo.title}" onerror="this.style.display='none'">
             <div class="photo-list-info">
-                <div class="photo-list-title">${escapeHTML(photo.title)}</div>
+                <div class="photo-list-title">${escapeHTML(photo.title)} <span style="color:#555;font-size:0.75rem">${photo.src}</span></div>
                 <div class="photo-list-cat">${catLabel(photo.category)}</div>
             </div>
             <div class="photo-list-actions">
@@ -343,10 +325,10 @@ function escapeHTML(str) {
     return div.innerHTML;
 }
 
-async function deletePhoto(id) {
+function deletePhoto(id) {
     if (!confirm("确认删除这张作品？")) return;
-    await dbDelete(id);
     photos = photos.filter((p) => p.id !== id);
+    persistPhotos();
     renderPhotoList();
     refreshGallery();
 }
@@ -354,31 +336,34 @@ async function deletePhoto(id) {
 function editPhoto(photo) {
     const newTitle = prompt("修改标题", photo.title);
     if (newTitle === null) return;
-    const cats = ["landscape", "portrait", "street", "still"];
-    const currentCat = cats.indexOf(photo.category);
     const newCat = prompt("修改分类\n(landscape=风光, portrait=人像, street=街拍, still=静物)", photo.category);
     if (newCat === null) return;
 
     photo.title = newTitle.trim() || photo.title;
-    if (cats.includes(newCat.toLowerCase())) {
+    const validCats = ["landscape", "portrait", "street", "still"];
+    if (validCats.includes(newCat.toLowerCase())) {
         photo.category = newCat.toLowerCase();
     }
-    dbPut(photo).then(() => {
-        const idx = photos.findIndex((p) => p.id === photo.id);
-        if (idx !== -1) photos[idx] = photo;
-        renderPhotoList();
-        refreshGallery();
-    });
+    persistPhotos();
+    renderPhotoList();
+    refreshGallery();
 }
 
 // ===== Export / Import =====
 document.getElementById("btnExport").addEventListener("click", () => {
-    const data = JSON.stringify(photos, null, 2);
+    // Export clean data: swap base64 src → local file path for GitHub Pages
+    const exportData = photos.map((p) => ({
+        id: p.id,
+        src: p.file || p.src,
+        category: p.category,
+        title: p.title,
+    }));
+    const data = JSON.stringify(exportData, null, 2);
     const blob = new Blob([data], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `photography-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = "photos.json";
     a.click();
     URL.revokeObjectURL(url);
 });
@@ -391,11 +376,8 @@ document.getElementById("importFile").addEventListener("change", async (e) => {
         const data = JSON.parse(text);
         if (!Array.isArray(data)) throw new Error("格式错误");
         if (!confirm(`即将导入 ${data.length} 张作品，确认覆盖当前数据？`)) return;
-        await dbClear();
-        for (const photo of data) {
-            await dbPut(photo);
-        }
         photos = data;
+        persistPhotos();
         renderPhotoList();
         refreshGallery();
         alert("导入完成");
@@ -405,20 +387,17 @@ document.getElementById("importFile").addEventListener("change", async (e) => {
     e.target.value = "";
 });
 
-// Reset to defaults
+// Reset
 document.getElementById("btnReset").addEventListener("click", async () => {
-    if (!confirm("将清空当前作品并加载演示数据，确认？")) return;
-    await dbClear();
-    for (const photo of defaultPhotos) {
-        await dbPut(photo);
-    }
-    photos = [...defaultPhotos];
+    if (!confirm("将清空当前作品并重新加载默认数据，确认？")) return;
+    localStorage.removeItem(STORAGE_KEY);
+    await loadPhotos();
     renderPhotoList();
     refreshGallery();
-    alert("已重置为演示数据");
+    alert("已重置");
 });
 
-// ===== Refresh =====
+// ===== Refresh Gallery =====
 function refreshGallery() {
     if (currentFilter === "all") {
         filteredPhotos = [...photos];
@@ -430,17 +409,7 @@ function refreshGallery() {
 
 // ===== Init =====
 async function init() {
-    await openDB();
-    photos = await dbGetAll();
-
-    // If empty, seed with defaults
-    if (photos.length === 0) {
-        for (const photo of defaultPhotos) {
-            await dbPut(photo);
-        }
-        photos = [...defaultPhotos];
-    }
-
+    await loadPhotos();
     filteredPhotos = [...photos];
     createGallery(filteredPhotos);
 }

@@ -105,7 +105,7 @@
                 <!-- Upload Form -->
                 <div class="upload-zone" id="uploadZone">
                     <div class="upload-preview" id="uploadPreview">
-                        <span>点击或拖拽上传</span>
+                        <span>点击选择图片 — 上传后网站立即显示</span>
                     </div>
                     <input type="file" id="uploadInput" accept="image/*" hidden>
                     <div class="upload-fields">
@@ -119,6 +119,9 @@
                         <button class="btn btn-sm" id="btnUpload" disabled>上传作品</button>
                     </div>
                 </div>
+                <p class="hint" style="margin-bottom:20px;color:#555;font-size:0.75rem">
+                    上传后图片将立即在网站显示。浏览器会自动下载图片文件，请将其放入 images/ 文件夹，然后导出 photos.json 替换 data/ 目录下的文件，即可部署上线。
+                </p>
 
                 <!-- Photo List -->
                 <div class="photo-list" id="photoList">

@@ -1,0 +1,17 @@
+[
+    { "id": "d1",  "src": "images/landscape_晨曦山峦_d1.jpg",  "category": "landscape", "title": "晨曦山峦" },
+    { "id": "d2",  "src": "images/landscape_静谧湖泊_d2.jpg",  "category": "landscape", "title": "静谧湖泊" },
+    { "id": "d3",  "src": "images/landscape_落日海岸_d3.jpg",  "category": "landscape", "title": "落日海岸" },
+    { "id": "d4",  "src": "images/landscape_川西秋色_d4.jpg",  "category": "landscape", "title": "川西秋色" },
+    { "id": "d5",  "src": "images/landscape_云海日出_d5.jpg",  "category": "landscape", "title": "云海日出" },
+    { "id": "d6",  "src": "images/portrait_回眸_d6.jpg",       "category": "portrait",   "title": "回眸" },
+    { "id": "d7",  "src": "images/portrait_午后光影_d7.jpg",    "category": "portrait",   "title": "午后光影" },
+    { "id": "d8",  "src": "images/portrait_微笑_d8.jpg",       "category": "portrait",   "title": "微笑" },
+    { "id": "d9",  "src": "images/street_雨夜霓虹_d9.jpg",     "category": "street",     "title": "雨夜霓虹" },
+    { "id": "d10", "src": "images/street_巷弄光影_d10.jpg",    "category": "street",     "title": "巷弄光影" },
+    { "id": "d11", "src": "images/street_城市剪影_d11.jpg",    "category": "street",     "title": "城市剪影" },
+    { "id": "d12", "src": "images/still_晨露_d12.jpg",         "category": "still",      "title": "晨露" },
+    { "id": "d13", "src": "images/still_花语_d13.jpg",         "category": "still",      "title": "花语" },
+    { "id": "d14", "src": "images/still_器物_d14.jpg",         "category": "still",      "title": "器物" },
+    { "id": "d15", "src": "images/still_光影小品_d15.jpg",     "category": "still",      "title": "光影小品" }
+]

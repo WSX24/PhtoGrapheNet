@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>导出图片工具</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #0d0d0d; color: #ccc;
+            padding: 40px 24px; max-width: 800px; margin: 0 auto;
+        }
+        h1 { color: #fff; font-weight: 300; margin-bottom: 8px; letter-spacing: 0.08em; }
+        .sub { color: #666; font-size: 0.9rem; margin-bottom: 32px; }
+        .btn {
+            display: inline-block; padding: 12px 28px; cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.25); background: none;
+            color: #fff; font-size: 0.9rem; font-family: inherit;
+            letter-spacing: 0.05em; transition: all 0.25s; margin-right: 10px; margin-bottom: 10px;
+        }
+        .btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.5); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .photos { margin-top: 32px; display: flex; flex-direction: column; gap: 10px; }
+        .photo-item {
+            display: flex; align-items: center; gap: 16px; padding: 12px;
+            background: #111; border-radius: 4px;
+        }
+        .photo-item img { width: 80px; height: 60px; object-fit: cover; border-radius: 3px; }
+        .photo-info { flex: 1; }
+        .photo-info .title { color: #ddd; font-size: 0.95rem; }
+        .photo-info .cat { color: #666; font-size: 0.8rem; }
+        .status { color: #4a4; font-size: 0.8rem; }
+        .status.pending { color: #888; }
+        hr { border-color: rgba(255,255,255,0.06); margin: 32px 0; }
+        code {
+            display: block; background: #111; padding: 16px; margin-top: 12px;
+            font-size: 0.85rem; color: #aaa; border-radius: 4px; white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>导出图片工具</h1>
+    <p class="sub">将浏览器 IndexedDB 中已上传的图片下载到本地，然后放入 images/ 文件夹</p>
+
+    <button class="btn" id="btnLoad">1. 加载 IndexedDB 中的图片</button>
+    <button class="btn" id="btnDownloadAll" disabled>2. 一键下载全部图片</button>
+    <button class="btn" id="btnExportJSON" disabled>3. 导出 photos.json</button>
+
+    <div class="photos" id="photoList">
+        <p style="color:#555">点击"加载"查看已上传的图片</p>
+    </div>
+
+    <hr>
+    <h2 style="color:#fff;font-weight:300;letter-spacing:0.05em">操作步骤</h2>
+    <code>1. 点击「加载 IndexedDB 中的图片」
+2. 点击「一键下载全部图片」→ 浏览器会依次下载每张图片
+3. 将下载的图片全部放入网站的 images/ 文件夹
+4. 点击「导出 photos.json」→ 得到一个 JSON 文件
+5. 将 photos.json 放入网站的 data/ 文件夹
+6. 刷新网站，图片就从本地加载了</code>
+
+    <script>
+        const DB_NAME = "PhotoGallery";
+        const DB_VERSION = 1;
+        let photos = [];
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open(DB_NAME, DB_VERSION);
+                req.onsuccess = (e) => resolve(e.target.result);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        document.getElementById("btnLoad").addEventListener("click", async () => {
+            const db = await openDB();
+            const tx = db.transaction("photos", "readonly");
+            const req = tx.objectStore("photos").getAll();
+            req.onsuccess = () => {
+                photos = req.result || [];
+                renderPhotos();
+                document.getElementById("btnDownloadAll").disabled = photos.length === 0;
+                document.getElementById("btnExportJSON").disabled = photos.length === 0;
+            };
+        });
+
+        function renderPhotos() {
+            const list = document.getElementById("photoList");
+            if (photos.length === 0) {
+                list.innerHTML = '<p style="color:#555">没有找到已上传的图片</p>';
+                return;
+            }
+            list.innerHTML = photos.map((p, i) => `
+                <div class="photo-item">
+                    <img src="${p.src}" alt="${p.title}">
+                    <div class="photo-info">
+                        <div class="title">${escapeHTML(p.title)}</div>
+                        <div class="cat">${p.category}</div>
+                    </div>
+                    <span class="status pending" id="status${i}">待下载</span>
+                    <button class="btn" onclick="downloadOne(${i})" style="padding:6px 14px;font-size:0.8rem">下载</button>
+                </div>
+            `).join("");
+        }
+
+        function escapeHTML(s) {
+            const div = document.createElement("div");
+            div.textContent = s;
+            return div.innerHTML;
+        }
+
+        function downloadOne(index) {
+            const photo = photos[index];
+            const ext = photo.src.startsWith("data:image/png") ? "png" : "jpg";
+            const filename = `${photo.category}_${photo.title}_${photo.id}.${ext}`;
+            downloadFile(photo.src, filename);
+            document.getElementById("status" + index).textContent = "已下载";
+            document.getElementById("status" + index).className = "status";
+        }
+
+        document.getElementById("btnDownloadAll").addEventListener("click", async () => {
+            for (let i = 0; i < photos.length; i++) {
+                const photo = photos[i];
+                const ext = photo.src.startsWith("data:image/png") ? "png" : "jpg";
+                const filename = `${photo.category}_${photo.title}_${photo.id}.${ext}`;
+                downloadFile(photo.src, filename);
+                document.getElementById("status" + i).textContent = "已下载";
+                document.getElementById("status" + i).className = "status";
+                await sleep(500);
+            }
+        });
+
+        document.getElementById("btnExportJSON").addEventListener("click", () => {
+            const exportData = photos.map(p => ({
+                id: p.id,
+                src: `images/${p.category}_${p.title}_${p.id}.jpg`,
+                category: p.category,
+                title: p.title,
+            }));
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "photos.json";
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        function downloadFile(dataUrl, filename) {
+            const a = document.createElement("a");
+            a.href = dataUrl;
+            a.download = filename;
+            a.click();
+        }
+
+        function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+    </script>
+</body>
+</html>
