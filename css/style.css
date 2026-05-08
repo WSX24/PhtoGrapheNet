@@ -372,6 +372,364 @@ img {
 .lightbox-prev { left: 16px; }
 .lightbox-next { right: 16px; }
 
+/* ===== Lightbox info ===== */
+.lightbox-info {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #888;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+}
+
+/* ===== Admin Trigger ===== */
+.admin-trigger {
+    padding: 6px 18px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #aaa;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 0.06em;
+    border-radius: 3px;
+    transition: all 0.3s;
+}
+
+.admin-trigger:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: #fff;
+}
+
+/* ===== Admin Overlay ===== */
+.admin-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: rgba(0, 0, 0, 0.85);
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+.admin-overlay.active {
+    display: flex;
+}
+
+.admin-panel {
+    position: relative;
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    width: 90vw;
+    max-width: 800px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 40px;
+}
+
+/* ===== Admin Login ===== */
+.admin-login {
+    text-align: center;
+}
+
+.admin-login h2 {
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: #fff;
+    letter-spacing: 0.08em;
+    margin-bottom: 28px;
+}
+
+.admin-login form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.admin-login input[type="password"] {
+    width: 260px;
+    padding: 12px 16px;
+    background: #111;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 0.95rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.admin-login input[type="password"]:focus {
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.hint {
+    margin-top: 12px;
+    font-size: 0.8rem;
+    color: #555;
+}
+
+/* ===== Admin Dashboard ===== */
+.admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.admin-header h2 {
+    font-size: 1.3rem;
+    font-weight: 300;
+    color: #fff;
+    letter-spacing: 0.08em;
+}
+
+.admin-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* ===== Buttons ===== */
+.btn-sm {
+    display: inline-block;
+    padding: 8px 20px;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    margin-top: 0;
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ccc;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.25s;
+}
+
+.btn-sm:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #fff;
+}
+
+.btn-import {
+    cursor: pointer;
+}
+
+.btn-danger {
+    border-color: rgba(255, 80, 80, 0.3);
+    color: #e55;
+}
+
+.btn-danger:hover {
+    border-color: rgba(255, 80, 80, 0.7);
+    background: rgba(255, 80, 80, 0.08);
+}
+
+.btn-close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 1.8rem;
+    cursor: pointer;
+    transition: color 0.25s;
+}
+
+.btn-close:hover {
+    color: #fff;
+}
+
+/* ===== Upload Zone ===== */
+.upload-zone {
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    padding: 20px;
+    margin-bottom: 28px;
+    border-radius: 4px;
+}
+
+.upload-preview {
+    width: 100%;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    background: #111;
+    cursor: pointer;
+    border-radius: 4px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+}
+
+.upload-preview:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.upload-preview span {
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.upload-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.upload-fields {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.upload-fields input[type="text"] {
+    flex: 1;
+    min-width: 160px;
+    padding: 10px 14px;
+    background: #111;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 0.9rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.upload-fields input[type="text"]:focus {
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.upload-fields select {
+    padding: 10px 14px;
+    background: #111;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 0.9rem;
+    font-family: inherit;
+    outline: none;
+    cursor: pointer;
+}
+
+.upload-fields select option {
+    background: #1a1a1a;
+}
+
+#btnUpload:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* ===== Photo List ===== */
+.photo-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.list-empty {
+    text-align: center;
+    color: #555;
+    padding: 30px 0;
+    font-size: 0.9rem;
+}
+
+.photo-list-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 14px;
+    background: #111;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.photo-list-item:hover {
+    background: #181818;
+}
+
+.photo-list-thumb {
+    width: 52px;
+    height: 52px;
+    object-fit: cover;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.photo-list-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.photo-list-title {
+    color: #ddd;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.photo-list-cat {
+    color: #666;
+    font-size: 0.75rem;
+    margin-top: 2px;
+    text-transform: capitalize;
+}
+
+.photo-list-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.photo-list-actions button {
+    padding: 5px 12px;
+    font-size: 0.75rem;
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #999;
+    cursor: pointer;
+    font-family: inherit;
+    border-radius: 3px;
+    transition: all 0.2s;
+}
+
+.photo-list-actions button:hover {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.photo-list-actions .btn-del:hover {
+    border-color: rgba(255, 80, 80, 0.5);
+    color: #e55;
+}
+
+/* ===== Gallery Empty ===== */
+.gallery-empty {
+    text-align: center;
+    padding: 80px 24px;
+}
+
+.gallery-empty p:first-child {
+    font-size: 1.2rem;
+    color: #555;
+}
+
+.gallery-empty p:last-child {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    color: #444;
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
     .nav {

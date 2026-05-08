@@ -15,6 +15,7 @@
                 <a href="#about">关于</a>
                 <a href="#contact">联系</a>
             </nav>
+            <button class="admin-trigger" id="adminTrigger">管理</button>
         </div>
     </header>
 
@@ -31,6 +32,10 @@
             <button class="filter-btn" data-filter="portrait">人像</button>
             <button class="filter-btn" data-filter="street">街拍</button>
             <button class="filter-btn" data-filter="still">静物</button>
+        </div>
+        <div class="gallery-empty" id="galleryEmpty" style="display:none">
+            <p>暂无作品</p>
+            <p>点击右下角管理按钮上传你的第一张照片</p>
         </div>
         <div class="gallery" id="galleryGrid"></div>
     </section>
@@ -64,6 +69,65 @@
         <span class="lightbox-next" id="lightboxNext">&#10095;</span>
         <div class="lightbox-content">
             <img src="" alt="" id="lightboxImg">
+        </div>
+        <div class="lightbox-info" id="lightboxInfo"></div>
+    </div>
+
+    <!-- ===== Admin Panel ===== -->
+    <div class="admin-overlay" id="adminOverlay">
+        <div class="admin-panel" id="adminPanel">
+
+            <!-- Login -->
+            <div class="admin-login" id="adminLogin">
+                <h2>管理登录</h2>
+                <form id="loginForm">
+                    <input type="password" id="loginPassword" placeholder="请输入管理密码" required>
+                    <button type="submit" class="btn btn-sm">进入管理</button>
+                </form>
+                <button class="btn-close" id="adminClose">&times;</button>
+            </div>
+
+            <!-- Dashboard -->
+            <div class="admin-dashboard" id="adminDashboard" style="display:none">
+                <div class="admin-header">
+                    <h2>作品管理</h2>
+                    <div class="admin-actions">
+                        <button class="btn btn-sm" id="btnExport">导出数据</button>
+                        <label class="btn btn-sm btn-import">
+                            导入数据
+                            <input type="file" id="importFile" accept=".json" hidden>
+                        </label>
+                        <button class="btn btn-sm btn-danger" id="btnReset">重置演示数据</button>
+                        <button class="btn btn-sm" id="btnLogout">退出</button>
+                    </div>
+                </div>
+
+                <!-- Upload Form -->
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-preview" id="uploadPreview">
+                        <span>点击或拖拽上传</span>
+                    </div>
+                    <input type="file" id="uploadInput" accept="image/*" hidden>
+                    <div class="upload-fields">
+                        <input type="text" id="uploadTitle" placeholder="作品标题">
+                        <select id="uploadCategory">
+                            <option value="landscape">风光</option>
+                            <option value="portrait">人像</option>
+                            <option value="street">街拍</option>
+                            <option value="still">静物</option>
+                        </select>
+                        <button class="btn btn-sm" id="btnUpload" disabled>上传作品</button>
+                    </div>
+                </div>
+
+                <!-- Photo List -->
+                <div class="photo-list" id="photoList">
+                    <p class="list-empty">暂无作品，请上传</p>
+                </div>
+
+                <button class="btn-close" id="adminDashboardClose">&times;</button>
+            </div>
+
         </div>
     </div>
 
